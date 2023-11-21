@@ -34,7 +34,7 @@ public class Plugin : BaseUnityPlugin
         Logger.LogInfo($"Plugin {PluginInfo.PLUGIN_GUID} is loaded!");
 
         EnableDolly = Config.Bind("Settings", "Enable Dolly Zoom Effect", true, "Makes the FOV change while the visual position of the camera doesn't.");
-        MaxFov = Config.Bind("Settings", "Maximum FOV", 80.0f);
+        MaxFov = Config.Bind("Settings", "Maximum FOV", 80.0f, new ConfigDescription("The maximum FOV that can be reached.", new AcceptableValueRange<float>(30.0f, 90.0f)));
         AdjustmentSpeed = Config.Bind("Settings", "Adjustment Speed", 3.5f, "How fast the FOV adjusts in degrees per second.");
         UseTotalSpeed = Config.Bind("Settings", "Use Total Speed", true, "Whether to use the total speed or only the lateral (horizontal) speed.");
         MaxSpeedKmh = Config.Bind("Settings", "Maximum Speed (km/h)", 60.0f);
