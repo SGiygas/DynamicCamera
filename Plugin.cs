@@ -16,7 +16,9 @@ public class Plugin : BaseUnityPlugin
 
     public ConfigEntry<bool> UseTotalSpeed { get; private set; }
     public ConfigEntry<bool> EnableDolly { get; private set; }
-    public ConfigEntry<float> MaxFov { get; private set; }
+    public ConfigEntry<bool> UseCustomMinFOV { get; private set; }
+    public ConfigEntry<float> MinFOV { get; private set; }
+    public ConfigEntry<float> MaxFOV { get; private set; }
     public ConfigEntry<float> MaxSpeedKmh { get; private set; }
     public ConfigEntry<float> AdjustmentSpeed { get; private set; }
 
@@ -34,7 +36,9 @@ public class Plugin : BaseUnityPlugin
         Logger.LogInfo($"Plugin {PluginInfo.PLUGIN_GUID} is loaded!");
 
         EnableDolly = Config.Bind("Settings", "Enable Dolly Zoom Effect", true, "Makes the FOV change while the visual position of the camera doesn't.");
-        MaxFov = Config.Bind("Settings", "Maximum FOV", 80.0f, new ConfigDescription("The maximum FOV that can be reached.", new AcceptableValueRange<float>(30.0f, 90.0f)));
+        UseCustomMinFOV = Config.Bind("Settings", "Use Custom Minimum FOV", false, "Allows overriding the minimum FOV with a custom value.");
+        MinFOV = Config.Bind("Settings", "Custom Minimum FOV", 64.0f, new ConfigDescription("The FOV that will be reached at no speed.", new AcceptableValueRange<float>(30.0f, 90.0f)));
+        MaxFOV = Config.Bind("Settings", "Maximum FOV", 80.0f, new ConfigDescription("The FOV that will be reached at max speed.", new AcceptableValueRange<float>(30.0f, 90.0f)));
         AdjustmentSpeed = Config.Bind("Settings", "Adjustment Speed", 3.5f, "How fast the FOV adjusts in degrees per second.");
         UseTotalSpeed = Config.Bind("Settings", "Use Total Speed", true, "Whether to use the total speed or only the lateral (horizontal) speed.");
         MaxSpeedKmh = Config.Bind("Settings", "Maximum Speed (km/h)", 60.0f);
@@ -49,6 +53,11 @@ public class Plugin : BaseUnityPlugin
 
     public void Initialize(float defaultFOV)
     {
+        if (UseCustomMinFOV.Value)
+        {
+            defaultFOV = MinFOV.Value;
+        }
+
         DefaultFOV = defaultFOV;
         _currentFOV = defaultFOV;
         _currentFOVT = 0.0f;
@@ -75,7 +84,7 @@ public class Plugin : BaseUnityPlugin
         }
 
         float t = _easeIn.Evaluate(_currentFOVT);
-        _currentFOV = Mathf.Lerp(DefaultFOV, MaxFov.Value, t);
+        _currentFOV = Mathf.Lerp(DefaultFOV, MaxFOV.Value, t);
 
         return _currentFOV;
     }
